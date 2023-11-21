@@ -60,7 +60,7 @@ def dataAnalyzer(df):
 
     # Razon entre el numero de calif. y el promedio
     df['Razon'] = df['# de calif.'] / df['Promedio']
-    df['Razon'].round(decimals=1)
+    df['Razon'] = df['Razon'].round(decimals=2)
 
     # Top profesores con mejores reseñas
     resultadosMax = df.loc[
