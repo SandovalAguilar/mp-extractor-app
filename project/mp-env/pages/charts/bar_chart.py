@@ -102,4 +102,4 @@ def generate_bar_chart(grouped_table):
         interactive=True,
     )
 
-    return ft.Container(chart, bgcolor=ft.colors.GREY_800, padding=10, border_radius=5, expand=True)
+    return ft.Container(chart, bgcolor=ft.colors.with_opacity(0, '#272830'), padding=10, border_radius=5, expand=True)

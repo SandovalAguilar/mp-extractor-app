@@ -10,5 +10,4 @@ tables = da.dataAnalyzer(hd.toDataFrame(
 
 grouped_table = t.groupedTable('tabla', tables.fullTable[['Promedio']])
 
-print(grouped_table.table)
-print(str(grouped_table.table['Intervals'].iloc[0]))
+print(tables.describeData)

@@ -1,0 +1,17 @@
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyCEC1quGZa-iU7ASTeXMua7RX1g9nLaO_0",
+  authDomain: "mp-extractor-app.firebaseapp.com",
+  projectId: "mp-extractor-app",
+  storageBucket: "mp-extractor-app.appspot.com",
+  messagingSenderId: "1018018991464",
+  appId: "1:1018018991464:web:f55646045e961e86169add"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);

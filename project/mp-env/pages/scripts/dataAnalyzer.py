@@ -7,14 +7,8 @@
 file -- dataAnalyzer.py -- 
 '''
 
-# Librerias
 import pandas as pd
 
-# Modulos
-#import htmlToDataFrame as td
-from scripts import htmlToDataFrame as td
-
-# Clases
 class results():
 
     tables_names = [
@@ -35,21 +29,21 @@ def dataAnalyzer(df):
 
     # Nuevos nombres para las columnas
     newNames = {
-        'i' : 'ID', 
-        'n' : 'Nombre', 
-        'a' : 'Apellido', 
-        'd' : 'Departamento / Facultad',
-        'm' : '# de calif.',
-        'c' : 'Promedio'
+        'i': 'ID',
+        'n': 'Nombre',
+        'a': 'Apellido',
+        'd': 'Departamento / Facultad',
+        'm': '# de calif.',
+        'c': 'Promedio'
     }
 
-    df = df.rename(columns = newNames)
+    df = df.rename(columns=newNames)
 
     # Cambiar el tipo de variale de cada columna
     newTypes = {
-        'ID' : 'int',
-        '# de calif.' : 'int',
-        'Promedio' : 'float'
+        'ID': 'int',
+        '# de calif.': 'int',
+        'Promedio': 'float'
     }
 
     df = df.astype(newTypes)
@@ -64,31 +58,34 @@ def dataAnalyzer(df):
 
     # Top profesores con mejores reseñas
     resultadosMax = df.loc[
-        (df["Promedio"] > df["Promedio"].mean()) & 
-        (df["# de calif."] > df["# de calif."].mean()) & 
+        (df["Promedio"] > df["Promedio"].mean()) &
+        (df["# de calif."] > df["# de calif."].mean()) &
         (df['Razon'] > df['Razon'].mean())]
 
-    resultadosMax = resultadosMax.sort_values(by = "Razon", ascending = False).reset_index(drop = True)
-    resultadosMax = resultadosMax.sort_values(by = 'Promedio', ascending = False).reset_index(drop = True)
+    resultadosMax = resultadosMax.sort_values(
+        by="Razon", ascending=False).reset_index(drop=True)
+    resultadosMax = resultadosMax.sort_values(
+        by='Promedio', ascending=False).reset_index(drop=True)
 
     # Top profesores con peores reseñas
     resultadosMin = df.loc[
-        (df["Promedio"] < df["Promedio"].mean()) & 
-        (df["# de calif."] > df["# de calif."].mean()) & 
+        (df["Promedio"] < df["Promedio"].mean()) &
+        (df["# de calif."] > df["# de calif."].mean()) &
         (df['Razon'] > df['Razon'].mean())]
 
-
-    resultadosMin = resultadosMin.sort_values(by = "Razon", ascending = False).reset_index(drop = True)
-    resultadosMin = resultadosMin.sort_values(by = 'Promedio').reset_index(drop = True)
+    resultadosMin = resultadosMin.sort_values(
+        by="Razon", ascending=False).reset_index(drop=True)
+    resultadosMin = resultadosMin.sort_values(
+        by='Promedio').reset_index(drop=True)
 
     # Estadistica descriptiva
-
-    describeData = df[['# de calif.', 'Promedio', 'Razon']].describe()
+    describeData = df[['# de calif.', 'Promedio', 'Razon']].describe().reset_index(names='Estadístico').round(decimals=2)
 
     # Se retorna un objeto con los dataframes resultantes
     finalResults = results(resultadosMin, resultadosMax, describeData, df)
 
     return finalResults
+
 
 # Este apartado solo debe utilizarse para realizar pruebas individuales del modulo
 '''
