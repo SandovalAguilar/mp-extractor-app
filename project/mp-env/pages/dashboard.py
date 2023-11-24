@@ -1,10 +1,21 @@
 import flet as ft
 import pandas as pd
+import mysql.connector
+from flet import TextField, Checkbox, ElevatedButton, Text, Row, Column,LinearGradient,colors,DataColumn
+from flet_core.control_event import ControlEvent
+
+
+
 
 from scripts import dataAnalyzer as da
 from scripts import htmlToDataFrame as hd
 from distribution_table import table as dt
 from charts import bar_chart as bc
+
+#credenciales para la base de datos
+conexion = mysql.connector.connect(user='uuvipz0v8e4x2axm', password='35UW4RDkqBWIy5NfT3Wp', host='bkzxz5yi2mqoyjhpjzcd-mysql.services.clever-cloud.com',database='bkzxz5yi2mqoyjhpjzcd',port='3306')
+
+
 
 tables = da.dataAnalyzer(hd.toDataFrame(
     'https://www.misprofesores.com/escuelas/UANL-FCFM_2263'))
@@ -24,6 +35,74 @@ def rows(df: pd.DataFrame) -> list:
 
 
 def main(page: ft.Page):
+
+    #aqui va el login
+    text_username: TextField = TextField(label='Usuario', text_align=ft.TextAlign.CENTER, width=230)
+    text_password: TextField = TextField(label='Contrasena', text_align=ft.TextAlign.CENTER, width=230, password=True)
+    Checkbox_showPassword: Checkbox = Checkbox(label='Mostrar Contrasena', value=False)
+    button_login: ElevatedButton = ElevatedButton(text='Iniciar Secion', width=230, disabled=True)
+
+    def Validate(e: ControlEvent) -> None:
+        if all([text_username.value, text_password.value]):
+            button_login.disabled=False
+        else:
+            button_login.disabled=True
+
+        page.update()
+    
+    def ShowPassword(e: ControlEvent) ->None:
+        if (Checkbox_showPassword.value == True):
+            text_password.password=False
+        else:
+            text_password.password=True
+        page.update()
+    
+    def Sumit(e: ControlEvent) -> None:
+
+        cursor= conexion.cursor()
+        cursor.execute("select * from Usuarios where user='"+text_username.value+"' and pass="+text_password.value)
+        tabla=cursor.fetchone()
+        print('usuario:', text_username.value)
+        print('contra:', text_password.value)
+        if(tabla):
+            print('se pudo')
+            conexion.close()
+            page.clean()
+            page.add(t)
+
+
+
+    Checkbox_showPassword.on_change = ShowPassword
+    text_password.on_change = Validate
+    text_username.on_change = Validate
+    button_login.on_click = Sumit
+
+
+    container = ft.Container(
+        ft.Column([
+            ft.Text(value='    BIENVENIDO',text_align='center',size=30,weight ='w700',),
+            ft.Container(text_username,padding=ft.padding.only(20,20)),
+            ft.Container(text_password,padding=ft.padding.only(20,20)),
+            ft.Container(Checkbox_showPassword,padding=ft.padding.only(20,20)),
+            ft.Container(button_login,padding=ft.padding.only(20,20)),
+        ],
+        alignment=ft.MainAxisAlignment.SPACE_EVENLY
+        ),
+        
+        border_radius=20,
+        width=300,
+        height=400,
+        gradient= ft.LinearGradient([
+            ft.colors.BLUE_50,
+            ft.colors.BLUE_100,
+            ft.colors.BLUE_200,
+        ])
+
+    )
+
+    #termina login
+
+
     datatable_max = ft.DataTable(columns=headers(
         tables.maxTable), rows=rows(tables.maxTable))
     datatable_min = ft.DataTable(columns=headers(
@@ -87,8 +166,8 @@ def main(page: ft.Page):
         expand=1,
     )
 
-    page.add(t)
+    page.add(container)
 
 
 if __name__ == "__main__":
-    ft.app(target=main, view=ft.AppView.WEB_BROWSER)  # view = ft.AppView.WEB_BROWSER)
+    ft.app(target=main)  # view = ft.AppView.WEB_BROWSER)
