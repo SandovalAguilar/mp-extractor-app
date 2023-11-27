@@ -39,6 +39,20 @@ def main(page: ft.Page):
     l.Fields().text_username.on_change = l.validate(ControlEvent, page)
     l.Fields().button_login.on_click = l.submit(ControlEvent, page)
     '''
+    page.theme_mode = ft.ThemeMode.LIGHT
+    fail_log=ft.Text(color=ft.colors.RED_400)
+
+    def theme_changed(e):
+        page.theme_mode = (
+            ft.ThemeMode.DARK
+            if page.theme_mode == ft.ThemeMode.LIGHT
+            else ft.ThemeMode.LIGHT
+        )
+        c.label = (
+            "Light theme" if page.theme_mode == ft.ThemeMode.LIGHT else "Dark theme"
+        )
+        page.update()
+    c = ft.Switch(label="Light theme", on_change=theme_changed)
 
     text_username: TextField = TextField(
         label='Usuario', text_align=ft.TextAlign.CENTER, width=230)
@@ -54,8 +68,9 @@ def main(page: ft.Page):
             button_login.disabled = False
         else:
             button_login.disabled = True
-
+        fail_log.value=''
         page.update()
+
 
     def show_password(e: ControlEvent) -> None:
         if (Checkbox_showPassword.value == True):
@@ -67,7 +82,7 @@ def main(page: ft.Page):
     def submit(e: ControlEvent) -> None:
         cursor = conexion.cursor()
         cursor.execute("select * from Usuarios where user='" +
-                       text_username.value+"' and pass="+text_password.value)
+                       text_username.value+"' and pass='"+text_password.value+"'")
         tabla = cursor.fetchone()
         print('usuario:', text_username.value)
         print('contraseña:', text_password.value)
@@ -76,11 +91,20 @@ def main(page: ft.Page):
             conexion.close()
             page.clean()
             page.add(t)
+        else:
+            print('no se pudo')
+            fail_log.value="Usuario o Contrasena incorrectos"
+            page.update()
+
+    def cerrar_cecion(e: ControlEvent) -> None:
+        page.clean()
+        page.add(container)
 
     Checkbox_showPassword.on_change = show_password
     text_password.on_change = validate
     text_username.on_change = validate
     button_login.on_click = submit
+
 
     container = ft.Container(
         ft.Column([
@@ -91,6 +115,7 @@ def main(page: ft.Page):
             ft.Container(Checkbox_showPassword,
                          padding=ft.padding.only(20, 20), alignment=ft.alignment.center),
             ft.Container(button_login, padding=ft.padding.only(20, 20)),
+            ft.Container(fail_log,padding=ft.padding.only(20, 20))
         ],
             alignment=ft.MainAxisAlignment.CENTER,
             horizontal_alignment=ft.CrossAxisAlignment.CENTER
@@ -185,6 +210,32 @@ def main(page: ft.Page):
                 )
             ]
         )
+    def column_with_horiz_config(align: ft.CrossAxisAlignment):
+        return ft.Column(
+            [
+                ft.Container(
+                    content=c,
+                    alignment=ft.alignment.center,
+                    width=400,
+                    height=50
+                ),
+                ft.Container(
+                    content=ft.ElevatedButton(
+                        "Cerrar secion",
+                        on_click=cerrar_cecion,
+                        icon="POWER_SETTINGS_NEW_SHARP",
+                        icon_color="RED",
+                        color="RED_300"),
+                    alignment=ft.alignment.center_left,
+                    width=400,
+                    height=50
+                )
+            ]
+        )
+
+
+    
+
 
     t = ft.Tabs(
         selected_index=1,
@@ -223,18 +274,25 @@ def main(page: ft.Page):
                 text="Generar reporte",
                 content=ft.Container(content=column_with_horiz_alignment(ft.CrossAxisAlignment.CENTER),
                                      alignment=ft.alignment.center)
+            ),
+            ft.Tab(
+                text="Configuracion",
+                content=ft.Container(content=column_with_horiz_config(ft.CrossAxisAlignment.CENTER)
+
+                )
             )
         ],
         expand=1,
     )
 
     # page.add(l.login_page(page))
+    #page.add(container)
 
     page.add(container)
 
 
 if __name__ == "__main__":
-    ft.app(target=main)  # view = ft.AppView.WEB_BROWSER)
+    ft.app(target=main,view = ft.AppView.WEB_BROWSER)  # view = ft.AppView.WEB_BROWSER)
 
 '''
 ft.Container(
