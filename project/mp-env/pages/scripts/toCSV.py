@@ -13,11 +13,11 @@ from datetime import date
 from pathlib import Path
 
 # Modulos
-import dataAnalyzer as da
-import htmlToDataFrame as td
+import scripts.dataAnalyzer as da
+import scripts.htmlToDataFrame as hd
 
 # Funcion principal
-def toCSV(df, facultad, tableType):
+def to_csv(df, facultad, tableType):
     
     script_path = str(Path( __file__ ).absolute())
     today_date = str(date.today())
@@ -25,11 +25,14 @@ def toCSV(df, facultad, tableType):
 
     print("Archivo creado satisfactoriamente en la ruta " + script_path + " con la fecha: " + today_date, flush = True)
 
+    string = "Archivo creado satisfactoriamente en la ruta " + script_path + " con la fecha: " + today_date
+
+    return string
+
 # Este apartado solo debe utilizarse para realizar pruebas individuales del modulo
-'''
 if __name__ == "__main__":
     
-    input_url = input()
-    nombre_facultad = input()
-    to_csv(da.data_analyzer(input_url, nombre_facultad).full_table, nombre_facultad)
-'''
+    tables = da.dataAnalyzer(hd.toDataFrame(
+    'https://www.misprofesores.com/escuelas/UANL-FCFM_2263'))
+
+    to_csv(tables.fullTable, 'FCFM', 'FULL')

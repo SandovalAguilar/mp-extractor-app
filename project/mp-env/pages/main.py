@@ -1,17 +1,16 @@
 import flet as ft
 import pandas as pd
 import mysql.connector
-#import login as l
+import login as l
 
 from flet import TextField, Checkbox, ElevatedButton, Text, Row, Column, LinearGradient, colors, DataColumn
 from flet_core.control_event import ControlEvent
-from pages.scripts import dataAnalyzer as da
-from pages.scripts import htmlToDataFrame as hd
-#from pages.scrips import toCSV as tc
-#from pages.scripts import toPDF as tp
-from pages.distribution_table import table as dt
-from pages.charts import bar_chart as bc
-from pages import login as l
+from scripts import dataAnalyzer as da
+from scripts import htmlToDataFrame as hd
+import scripts.toCSV as tc
+import scripts.toPDF as tp
+from distribution_table import table as dt
+from charts import bar_chart as bc
 
 
 tables = da.dataAnalyzer(hd.toDataFrame(
@@ -33,7 +32,6 @@ def rows(df: pd.DataFrame) -> list:
 
 
 def main(page: ft.Page):
-
     '''
     l.Fields().Checkbox_showPassword.on_change = l.show_password(ControlEvent, page)
     l.Fields().text_password.on_change = l.validate(ControlEvent, page)
@@ -101,7 +99,7 @@ def main(page: ft.Page):
         #height=400)
 
     '''
-        
+
     # Tables
     datatable_max = ft.DataTable(columns=headers(
         tables.maxTable), rows=rows(tables.maxTable))
@@ -118,45 +116,75 @@ def main(page: ft.Page):
     lv_min = ft.ListView(expand=1, spacing=10, padding=20)
     lv_min.controls.append(datatable_min)
 
-    '''
-    lv_describe = ft.ListView(expand=1, spacing=10, padding=20)
-    lv_describe.controls.append(datatable_describe)
-    '''
-
     lv_full = ft.ListView(expand=1, spacing=10, padding=20)
     lv_full.controls.append(datatable_full)
 
     def button_report_clicked(e):
-        #tp.toPDF()
-        pass
-    
+        dlg = ft.AlertDialog(title=ft.Text(tp.toPDF(tables)),
+                             on_dismiss=lambda e: print("Dialog dismissed!"))
+        page.dialog = dlg
+        dlg.open = True
+        page.update()
+
+    def button_freq_table_clicked(e):
+        dlg = ft.AlertDialog(title=ft.Text(tc.to_csv(dt.groupedTable.generate_table)),
+                             on_dismiss=lambda e: print("Dialog dismissed!"))
+        page.dialog = dlg
+        dlg.open = True
+        page.update()
+
+    def button_dataset_clicked(e):
+        dlg = ft.AlertDialog(title=ft.Text(tc.to_csv(tables.fullTable, 'FCFM', 'FULL')),
+                             on_dismiss=lambda e: print("Dialog dismissed!"))
+        page.dialog = dlg
+        dlg.open = True
+        page.update()
+
+    def button_statistics_clicked(e):
+        dlg = ft.AlertDialog(title=ft.Text(tc.to_csv(tables.describeData, 'FCFM', 'STATISTICS')),
+                             on_dismiss=lambda e: print("Dialog dismissed!"))
+        page.dialog = dlg
+        dlg.open = True
+        page.update()
 
     def column_with_horiz_alignment(align: ft.CrossAxisAlignment):
         return ft.Column(
             [
                 ft.Container(
-                content=ft.ElevatedButton("Generar reporte (PDF)", on_click=button_report_clicked, icon="picture_as_pdf"),
-                alignment=ft.alignment.center,
-                width=400,
-                height=50
+                    content=ft.ElevatedButton(
+                        "Generar reporte (PDF)",
+                        on_click=button_report_clicked,
+                        icon="picture_as_pdf"),
+                    alignment=ft.alignment.center,
+                    width=400,
+                    height=50
                 ),
                 ft.Container(
-                content=ft.ElevatedButton("Tabla de frecuencias (csv)", icon="insert_chart"),
-                alignment=ft.alignment.center,
-                width=400,
-                height=50
+                    content=ft.ElevatedButton(
+                        "Tabla de frecuencias (csv)",
+                        on_click=button_freq_table_clicked,
+                        icon="insert_chart",),
+                    alignment=ft.alignment.center,
+                    width=400,
+                    height=50
                 ),
                 ft.Container(
-                content=ft.ElevatedButton("Dataset (csv)", icon="insert_chart"),
-                alignment=ft.alignment.center,
-                width=400,
-                height=50
+                    content=ft.ElevatedButton(
+                        "Dataset (csv)",
+                        on_click=button_dataset_clicked,
+                        icon="insert_chart"),
+                    alignment=ft.alignment.center,
+                    width=400,
+                    height=50
                 ),
                 ft.Container(
-                content=ft.ElevatedButton("Estadística descriptiva (csv)", icon="insert_chart"),
-                alignment=ft.alignment.center,
-                width=400,
-                height=50
+                    content=ft.ElevatedButton(
+                        "Estadística descriptiva (csv)",
+                        on_click=button_statistics_clicked,
+                        icon="insert_chart"),
+                    alignment=ft.alignment.center,
+                    width=400,
+                    height=50
                 )
             ]
         )
@@ -203,7 +231,7 @@ def main(page: ft.Page):
         expand=1,
     )
 
-    #page.add(l.login_page(page))
+    # page.add(l.login_page(page))
 
     page.add(t)
 
