@@ -12,6 +12,7 @@ import scripts.toPDF as tp
 from distribution_table import table as dt
 from charts import bar_chart as bc
 
+conexion = mysql.connector.connect(user='uuvipz0v8e4x2axm', password='35UW4RDkqBWIy5NfT3Wp', host='bkzxz5yi2mqoyjhpjzcd-mysql.services.clever-cloud.com',database='bkzxz5yi2mqoyjhpjzcd',port='3306')
 
 tables = da.dataAnalyzer(hd.toDataFrame(
     'https://www.misprofesores.com/escuelas/UANL-FCFM_2263'))
@@ -37,7 +38,7 @@ def main(page: ft.Page):
     l.Fields().text_password.on_change = l.validate(ControlEvent, page)
     l.Fields().text_username.on_change = l.validate(ControlEvent, page)
     l.Fields().button_login.on_click = l.submit(ControlEvent, page)
-
+    '''
 
     text_username: TextField = TextField(
         label='Usuario', text_align=ft.TextAlign.CENTER, width=230)
@@ -95,10 +96,6 @@ def main(page: ft.Page):
             horizontal_alignment=ft.CrossAxisAlignment.CENTER
         ),
         border_radius=20)
-        #width=300,
-        #height=400)
-
-    '''
 
     # Tables
     datatable_max = ft.DataTable(columns=headers(
@@ -127,7 +124,7 @@ def main(page: ft.Page):
         page.update()
 
     def button_freq_table_clicked(e):
-        dlg = ft.AlertDialog(title=ft.Text(tc.to_csv(dt.groupedTable.generate_table)),
+        dlg = ft.AlertDialog(title=ft.Text(tc.to_csv(mean_scores_table.table, 'FCFM', 'FREQUENCY')),
                              on_dismiss=lambda e: print("Dialog dismissed!"))
         page.dialog = dlg
         dlg.open = True
@@ -233,7 +230,7 @@ def main(page: ft.Page):
 
     # page.add(l.login_page(page))
 
-    page.add(t)
+    page.add(container)
 
 
 if __name__ == "__main__":

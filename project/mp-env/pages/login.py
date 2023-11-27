@@ -59,8 +59,7 @@ def show_password(e: ControlEvent, page) -> None:
 
 def submit(e: ControlEvent, page, credentials) -> None:
     cursor = credentials.cursor()
-    cursor.execute("select * from Usuarios where user='" +
-                   Fields().text_username.value+"' and pass="+Fields().text_password.value)
+    cursor.execute("select * from Usuarios where user='"+Fields().text_username.value+"' and pass="+Fields().text_password.value)
     tabla = cursor.fetchone()
     print('usuario:', Fields().text_username.value)
     print('contraseña:', Fields().text_password.value)
