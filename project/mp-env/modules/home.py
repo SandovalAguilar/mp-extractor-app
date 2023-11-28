@@ -279,7 +279,8 @@ def home(page: ft.Page):
 
 
 def start():
-    ft.app(target=home, view=ft.AppView.WEB_BROWSER)
+    #ft.app(target=home, view=ft.AppView.WEB_BROWSER)
+    ft.app(target=home)
 
 
 if __name__ == "__main__":

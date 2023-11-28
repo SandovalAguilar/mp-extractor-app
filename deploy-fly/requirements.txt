@@ -1,0 +1,11 @@
+flet
+pandas
+mysql.connector
+FPDF
+requests 
+BeautifulSoup
+json
+re
+dataframe_image
+pathlib
+datetime

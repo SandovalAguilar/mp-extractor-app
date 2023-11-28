@@ -1,12 +1,3 @@
-'''
- * Authors: Ismael Sandoval Aguilar, Edgar Iván Hinojosa Saldaña.
- * Created: 27.10.2022
-'''
-
-'''
-file -- dataAnalyzer.py -- 
-'''
-
 import pandas as pd
 
 class results():
