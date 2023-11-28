@@ -1,18 +1,18 @@
 import flet as ft
 import pandas as pd
-import mysql.connector
-import login as l
+import scripts.toCSV as tc
+import scripts.toPDF as tp
+import sql_config as sc
 
-from flet import TextField, Checkbox, ElevatedButton, Text, Row, Column, LinearGradient, colors, DataColumn
+from flet import TextField, Checkbox, ElevatedButton
 from flet_core.control_event import ControlEvent
 from scripts import dataAnalyzer as da
 from scripts import htmlToDataFrame as hd
-import scripts.toCSV as tc
-import scripts.toPDF as tp
 from distribution_table import table as dt
 from charts import bar_chart as bc
 
-conexion = mysql.connector.connect(user='uuvipz0v8e4x2axm', password='35UW4RDkqBWIy5NfT3Wp', host='bkzxz5yi2mqoyjhpjzcd-mysql.services.clever-cloud.com',database='bkzxz5yi2mqoyjhpjzcd',port='3306')
+# Connector for the SQL database
+connector = sc.credentials()
 
 tables = da.dataAnalyzer(hd.toDataFrame(
     'https://www.misprofesores.com/escuelas/UANL-FCFM_2263'))
@@ -32,15 +32,9 @@ def rows(df: pd.DataFrame) -> list:
     return rows
 
 
-def main(page: ft.Page):
-    '''
-    l.Fields().Checkbox_showPassword.on_change = l.show_password(ControlEvent, page)
-    l.Fields().text_password.on_change = l.validate(ControlEvent, page)
-    l.Fields().text_username.on_change = l.validate(ControlEvent, page)
-    l.Fields().button_login.on_click = l.submit(ControlEvent, page)
-    '''
+def home(page: ft.Page):
     page.theme_mode = ft.ThemeMode.LIGHT
-    fail_log=ft.Text(color=ft.colors.RED_400)
+    fail_log = ft.Text(color=ft.colors.RED_400)
 
     def theme_changed(e):
         page.theme_mode = (
@@ -48,11 +42,12 @@ def main(page: ft.Page):
             if page.theme_mode == ft.ThemeMode.LIGHT
             else ft.ThemeMode.LIGHT
         )
-        c.label = (
-            "Light theme" if page.theme_mode == ft.ThemeMode.LIGHT else "Dark theme"
+        light_mode_switch.label = (
+            "Modo claro" if page.theme_mode == ft.ThemeMode.LIGHT else "Modo oscuro"
         )
         page.update()
-    c = ft.Switch(label="Light theme", on_change=theme_changed)
+
+    light_mode_switch = ft.Switch(label="Modo claro", on_change=theme_changed)
 
     text_username: TextField = TextField(
         label='Usuario', text_align=ft.TextAlign.CENTER, width=230)
@@ -68,9 +63,8 @@ def main(page: ft.Page):
             button_login.disabled = False
         else:
             button_login.disabled = True
-        fail_log.value=''
+        fail_log.value = ''
         page.update()
-
 
     def show_password(e: ControlEvent) -> None:
         if (Checkbox_showPassword.value == True):
@@ -80,23 +74,23 @@ def main(page: ft.Page):
         page.update()
 
     def submit(e: ControlEvent) -> None:
-        cursor = conexion.cursor()
+        cursor = connector.cursor()
         cursor.execute("select * from Usuarios where user='" +
                        text_username.value+"' and pass='"+text_password.value+"'")
         tabla = cursor.fetchone()
         print('usuario:', text_username.value)
         print('contraseña:', text_password.value)
         if (tabla):
-            print('se pudo')
-            conexion.close()
+            print('Succes!')
+            #connector.close()
             page.clean()
             page.add(t)
         else:
-            print('no se pudo')
-            fail_log.value="Usuario o Contrasena incorrectos"
+            print('Invalid')
+            fail_log.value = "Usuario o contraseña incorrectos"
             page.update()
 
-    def cerrar_cecion(e: ControlEvent) -> None:
+    def logout(e: ControlEvent) -> None:
         page.clean()
         page.add(container)
 
@@ -104,7 +98,6 @@ def main(page: ft.Page):
     text_password.on_change = validate
     text_username.on_change = validate
     button_login.on_click = submit
-
 
     container = ft.Container(
         ft.Column([
@@ -115,7 +108,7 @@ def main(page: ft.Page):
             ft.Container(Checkbox_showPassword,
                          padding=ft.padding.only(20, 20), alignment=ft.alignment.center),
             ft.Container(button_login, padding=ft.padding.only(20, 20)),
-            ft.Container(fail_log,padding=ft.padding.only(20, 20))
+            ft.Container(fail_log, padding=ft.padding.only(20, 20))
         ],
             alignment=ft.MainAxisAlignment.CENTER,
             horizontal_alignment=ft.CrossAxisAlignment.CENTER
@@ -141,6 +134,7 @@ def main(page: ft.Page):
     lv_full = ft.ListView(expand=1, spacing=10, padding=20)
     lv_full.controls.append(datatable_full)
 
+    # Buttons
     def button_report_clicked(e):
         dlg = ft.AlertDialog(title=ft.Text(tp.toPDF(tables)),
                              on_dismiss=lambda e: print("Dialog dismissed!"))
@@ -210,36 +204,33 @@ def main(page: ft.Page):
                 )
             ]
         )
+
     def column_with_horiz_config(align: ft.CrossAxisAlignment):
         return ft.Column(
             [
                 ft.Container(
-                    content=c,
+                    content=light_mode_switch,
                     alignment=ft.alignment.center,
-                    width=400,
+                    width=150,
                     height=50
                 ),
                 ft.Container(
                     content=ft.ElevatedButton(
-                        "Cerrar secion",
-                        on_click=cerrar_cecion,
+                        "Cerrar sesión",
+                        on_click=logout,
                         icon="POWER_SETTINGS_NEW_SHARP",
                         icon_color="RED",
                         color="RED_300"),
                     alignment=ft.alignment.center_left,
-                    width=400,
+                    width=150,
                     height=50
                 )
             ]
         )
 
-
-    
-
-
     t = ft.Tabs(
         selected_index=1,
-        animation_duration=150,
+        animation_duration=180,
         scrollable=True,
         tabs=[
             ft.Tab(
@@ -276,29 +267,20 @@ def main(page: ft.Page):
                                      alignment=ft.alignment.center)
             ),
             ft.Tab(
-                text="Configuracion",
-                content=ft.Container(content=column_with_horiz_config(ft.CrossAxisAlignment.CENTER)
-
-                )
+                text="Configuración",
+                content=ft.Container(content=column_with_horiz_config(ft.CrossAxisAlignment.CENTER),
+                                     alignment=ft.alignment.center), 
             )
         ],
         expand=1,
     )
 
-    # page.add(l.login_page(page))
-    #page.add(container)
-
     page.add(container)
 
 
-if __name__ == "__main__":
-    ft.app(target=main,view = ft.AppView.WEB_BROWSER)  # view = ft.AppView.WEB_BROWSER)
+def start():
+    ft.app(target=home, view=ft.AppView.WEB_BROWSER)
 
-'''
-ft.Container(
-                    content=ft.ElevatedButton("Generar reporte en PDF", icon="print"),
-                    alignment=ft.alignment.center,
-                    width=150,
-                    height=150
-                    )
-'''
+
+if __name__ == "__main__":
+    start()

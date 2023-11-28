@@ -1,12 +1,3 @@
-'''
- * Authors: Ismael Sandoval Aguilar, Edgar Iván Hinojosa Saldaña.
- * Created: 27.10.2022
-'''
-
-'''
-file -- htmlToDataFrame.py -- 
-'''
-
 # Liberias
 import requests 
 from bs4 import BeautifulSoup as bs

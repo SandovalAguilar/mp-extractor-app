@@ -26,9 +26,11 @@ def verify_connector():
     except Exception as error:
         print(error)
 
+'''
 def main():
     verify_connector()
 
 
 if __name__ == "__main__":
     main()
+'''

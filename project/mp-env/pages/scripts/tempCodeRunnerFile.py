@@ -1,1 +1,0 @@
-alquier tecla

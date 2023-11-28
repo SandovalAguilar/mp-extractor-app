@@ -5,37 +5,31 @@ from distribution_table import table as t
 from scripts import dataAnalyzer as da
 from scripts import htmlToDataFrame as hd
 
-tables = da.dataAnalyzer(hd.toDataFrame(
-    'https://www.misprofesores.com/escuelas/UANL-FCFM_2263'))
 
-grouped_table = t.groupedTable('tabla', tables.fullTable[['Promedio']])
+def generate_bar_chart(grouped_table):
+    class SampleRod(ft.BarChartRod):
+        def __init__(self, y: float, hovered: bool = False):
+            super().__init__()
+            self.hovered = hovered
+            self.y = y
 
+        def _before_build_command(self):
+            self.to_y = self.y + 1 if self.hovered else self.y
+            self.color = ft.colors.YELLOW if self.hovered else ft.colors.GREY_400
+            self.border_side = (
+                ft.BorderSide(width=1, color=ft.colors.GREY_700)
+                if self.hovered
+                else ft.BorderSide(width=0, color=ft.colors.GREY_700)
+            )
+            super()._before_build_command()
 
-class SampleRod(ft.BarChartRod):
-    def __init__(self, y: float, hovered: bool = False):
-        super().__init__()
-        self.hovered = hovered
-        self.y = y
-
-    def _before_build_command(self):
-        self.to_y = self.y + 1 if self.hovered else self.y
-        self.color = ft.colors.YELLOW if self.hovered else ft.colors.WHITE
-        self.border_side = (
-            ft.BorderSide(width=1, color=ft.colors.GREY_700)
-            if self.hovered
-            else ft.BorderSide(width=0, color=ft.colors.WHITE)
-        )
-        super()._before_build_command()
-
-    def _build(self):
-        self.tooltip = str(self.y)
-        self.width = 22
-        self.color = ft.colors.WHITE
-        self.bg_to_y = max(grouped_table.array_abs_freq) + 30
-        self.bg_color = ft.colors.GREY_700
-
-
-def main(page: ft.Page):
+        def _build(self):
+            self.tooltip = str(self.y)
+            self.width = 30
+            self.color = ft.colors.GREY_300
+            self.bg_to_y = max(grouped_table.array_abs_freq) + 30
+            self.bg_color = ft.colors.GREY_700
+    
     def on_chart_event(e: ft.BarChartEvent):
         for group_index, group in enumerate(chart.bar_groups):
             for rod_index, rod in enumerate(group.bar_rods):
@@ -108,10 +102,4 @@ def main(page: ft.Page):
         interactive=True,
     )
 
-    page.add(
-        ft.Container(
-            chart, bgcolor=ft.colors.GREY_800, padding=10, border_radius=5, expand=True
-        )
-    )
-
-ft.app(main)
+    return ft.Container(chart, bgcolor=ft.colors.with_opacity(0, '#272830'), padding=10, border_radius=5, expand=True)

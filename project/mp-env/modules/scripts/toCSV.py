@@ -1,12 +1,3 @@
-'''
- * Authors: Ismael Sandoval Aguilar, Edgar Iván Hinojosa Saldaña.
- * Created: 27.10.2022
-'''
-
-'''
-file -- toCSV.py -- 
-'''
-
 # Librerias 
 import pandas as pd
 from datetime import date
